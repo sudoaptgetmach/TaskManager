@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CurrentTimestamp;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -51,6 +52,7 @@ public class Tasks {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @CurrentTimestamp
     private Timestamp created_at;
 
     public Tasks(TaskCreationData data, UserRepository userRepository) {
@@ -62,6 +64,5 @@ public class Tasks {
         this.category = new Categories(data.category_id());
         this.user = userRepository.findById(data.user_id())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
-        this.created_at = data.created_at();
     }
 }
