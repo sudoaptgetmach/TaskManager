@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @SecurityRequirement(name = "bearer-key")
-    @GetMapping("/admin/list/users")
+    @GetMapping("/admin/users/list")
     public ResponseEntity<Page<UserListData>> userList(@PageableDefault(sort = {"id"}) Pageable paginable) {
         var page = repository.findAll(paginable).map(UserListData::new);
         return ResponseEntity.ok(page);
