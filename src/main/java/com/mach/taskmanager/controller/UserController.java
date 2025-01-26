@@ -2,6 +2,9 @@ package com.mach.taskmanager.controller;
 
 import com.mach.taskmanager.domain.user.User;
 import com.mach.taskmanager.domain.user.UserListData;
+import com.mach.taskmanager.domain.user.roles.Role;
+import com.mach.taskmanager.domain.user.roles.RoleName;
+import com.mach.taskmanager.repository.RoleRepository;
 import com.mach.taskmanager.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -13,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+
 @RestController
 @RequestMapping
 public class UserController {
@@ -21,11 +26,17 @@ public class UserController {
     private UserRepository repository;
 
     @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
     public ResponseEntity<User> createUser(@RequestBody @Valid User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Role userRole = roleRepository.findByName(RoleName.valueOf("ROLE_USER"))
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+        user.setRoles(Collections.singleton(userRole));
         User savedUser = repository.save(user);
         return ResponseEntity.ok(savedUser);
     }
