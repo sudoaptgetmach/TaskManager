@@ -5,6 +5,7 @@ import com.mach.taskmanager.domain.categories.CategoryCreationData;
 import com.mach.taskmanager.domain.categories.CategoryDataDetails;
 import com.mach.taskmanager.domain.categories.CategoryListData;
 import com.mach.taskmanager.repository.CategoryRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ public class CategoryController {
 
     @PostMapping("/category")
     @Transactional
+    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity addCategory(@RequestBody @Valid CategoryCreationData data, UriComponentsBuilder uriBuilder) {
 
         var category = new Categories(data);

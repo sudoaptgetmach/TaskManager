@@ -3,6 +3,7 @@ package com.mach.taskmanager.controller;
 import com.mach.taskmanager.domain.user.User;
 import com.mach.taskmanager.domain.user.UserListData;
 import com.mach.taskmanager.repository.UserRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ public class UserController {
         return ResponseEntity.ok(savedUser);
     }
 
+    @SecurityRequirement(name = "bearer-key")
     @GetMapping("/admin/list/users")
     public ResponseEntity<Page<UserListData>> userList(@PageableDefault(sort = {"id"}) Pageable paginable) {
         var page = repository.findAll(paginable).map(UserListData::new);
