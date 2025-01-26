@@ -4,6 +4,7 @@ import com.mach.taskmanager.domain.categories.Categories;
 import com.mach.taskmanager.domain.tasks.enums.Priority;
 import com.mach.taskmanager.domain.tasks.enums.Status;
 import com.mach.taskmanager.domain.user.User;
+import com.mach.taskmanager.repository.CategoryRepository;
 import com.mach.taskmanager.repository.UserRepository;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -25,6 +26,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Tasks {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -64,5 +66,31 @@ public class Tasks {
         this.category = new Categories(data.category_id());
         this.user = userRepository.findById(data.user_id())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+    }
+
+    public void atualizarInformacoes(TaskUpdateData dados, CategoryRepository repository) {
+        if (dados.id() != null) {
+            this.id = dados.id();
+        }
+        if (dados.title() != null) {
+            this.title = dados.title();
+        }
+        if (dados.description() != null) {
+            this.description = dados.description();
+        }
+        if (dados.due_date() != null) {
+            this.due_date = dados.due_date();
+        }
+        if (dados.priority() != null) {
+            this.priority = dados.priority();
+        }
+        if (dados.status() != null) {
+            this.status = dados.status();
+        }
+        if (dados.category() != null) {
+
+            this.category = repository.findById(dados.category().getId())
+                    .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+        }
     }
 }

@@ -1,30 +1,37 @@
 package com.mach.taskmanager.controller;
 
 import com.mach.taskmanager.domain.user.User;
+import com.mach.taskmanager.domain.user.UserListData;
 import com.mach.taskmanager.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepository repository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<User> createUser(@RequestBody @Valid User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        User savedUser = userRepository.save(user);
+        User savedUser = repository.save(user);
         return ResponseEntity.ok(savedUser);
+    }
+
+    @GetMapping("/admin/list/users")
+    public ResponseEntity<Page<UserListData>> userList(@PageableDefault(sort = {"id"}) Pageable paginable) {
+        var page = repository.findAll(paginable).map(UserListData::new);
+        return ResponseEntity.ok(page);
     }
 }

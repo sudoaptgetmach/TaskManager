@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping("category")
+@RequestMapping
 public class CategoryController {
 
     @Autowired
     private CategoryRepository repository;
 
-    @PostMapping
+    @PostMapping("/category")
     @Transactional
     public ResponseEntity addCategory(@RequestBody @Valid CategoryCreationData data, UriComponentsBuilder uriBuilder) {
 
@@ -33,8 +33,8 @@ public class CategoryController {
         return ResponseEntity.created(uri).body(new CategoryDataDetails(category));
     }
 
-    @GetMapping
-    public ResponseEntity<Page<CategoryListData>> medicoList(@PageableDefault(sort = {"name"}) Pageable paginable) {
+    @GetMapping("/categories")
+    public ResponseEntity<Page<CategoryListData>> categoryList(@PageableDefault(sort = {"name"}) Pageable paginable) {
         var page = repository.findAll(paginable).map(CategoryListData::new);
         return ResponseEntity.ok(page);
     }
