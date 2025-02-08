@@ -5,7 +5,6 @@ import com.mach.taskmanager.domain.user.User;
 import com.mach.taskmanager.security.JWTTokenData;
 import com.mach.taskmanager.security.TokenService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,11 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/login")
 public class AuthenticationController {
 
-    @Autowired
-    private AuthenticationManager manager;
+    private final AuthenticationManager manager;
+    private final TokenService tokenService;
 
-    @Autowired
-    private TokenService tokenService;
+    public AuthenticationController(AuthenticationManager manager, TokenService tokenService) {
+        this.manager = manager;
+        this.tokenService = tokenService;
+    }
 
     @PostMapping
     public ResponseEntity<JWTTokenData> efetuarLogin(@RequestBody @Valid AuthData dados) {

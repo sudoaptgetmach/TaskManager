@@ -9,11 +9,8 @@ import com.mach.taskmanager.repository.RoleRepository;
 import com.mach.taskmanager.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -24,11 +21,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/admin/roles")
 public class RoleController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository repository;
 
-    @Autowired
-    private RoleRepository repository;
+    public RoleController(UserRepository userRepository, RoleRepository repository) {
+        this.userRepository = userRepository;
+        this.repository = repository;
+    }
 
     @SecurityRequirement(name = "bearer-key")
     @GetMapping("/list")
@@ -41,6 +40,7 @@ public class RoleController {
 
     @SecurityRequirement(name = "bearer-key")
     @PostMapping("/set")
+    @Transactional
     public ResponseEntity<String> setRole(@RequestBody @Valid RoleUpdateData roleUpdateData) {
         User user = userRepository.findById(roleUpdateData.userId())
                 .orElseThrow(() -> new RuntimeException("User not found"));

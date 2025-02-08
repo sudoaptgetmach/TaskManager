@@ -7,7 +7,6 @@ import com.mach.taskmanager.domain.categories.CategoryListData;
 import com.mach.taskmanager.repository.CategoryRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -20,13 +19,16 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping
 public class CategoryController {
 
-    @Autowired
-    private CategoryRepository repository;
+    private final CategoryRepository repository;
+
+    public CategoryController(CategoryRepository repository) {
+        this.repository = repository;
+    }
 
     @PostMapping("/category")
     @Transactional
     @SecurityRequirement(name = "bearer-key")
-    public ResponseEntity addCategory(@RequestBody @Valid CategoryCreationData data, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<CategoryDataDetails> addCategory(@RequestBody @Valid CategoryCreationData data, UriComponentsBuilder uriBuilder) {
 
         var category = new Categories(data);
         var uri = uriBuilder.path("/category/{id}").buildAndExpand(category.getId()).toUri();
