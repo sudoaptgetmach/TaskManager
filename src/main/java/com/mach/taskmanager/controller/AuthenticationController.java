@@ -3,36 +3,33 @@ package com.mach.taskmanager.controller;
 import com.mach.taskmanager.domain.user.AuthData;
 import com.mach.taskmanager.domain.user.User;
 import com.mach.taskmanager.security.JWTTokenData;
-import com.mach.taskmanager.security.TokenService;
+import com.mach.taskmanager.service.AuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping
 public class AuthenticationController {
 
-    private final AuthenticationManager manager;
-    private final TokenService tokenService;
+    private final AuthenticationService service;
 
-    public AuthenticationController(AuthenticationManager manager, TokenService tokenService) {
-        this.manager = manager;
-        this.tokenService = tokenService;
+    public AuthenticationController(AuthenticationService service) {
+        this.service = service;
     }
 
-    @PostMapping
-    public ResponseEntity<JWTTokenData> efetuarLogin(@RequestBody @Valid AuthData dados) {
-        var authenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), dados.password());
-        var auth = manager.authenticate(authenticationToken);
-        System.out.println("Authorities do usuário autenticado: " + auth.getAuthorities());
+    @PostMapping("/login")
+    public ResponseEntity<JWTTokenData> efetuarLogin(@RequestBody @Valid AuthData data) {
+        return ResponseEntity.ok(service.login(data));
+    }
 
-        var tokenJWT = tokenService.gerarToken((User) auth.getPrincipal());
-
-        return ResponseEntity.ok(new JWTTokenData(tokenJWT));
+    @PostMapping("/register")
+    @Transactional
+    public ResponseEntity<User> createUser(@RequestBody @Valid User user) {
+        return ResponseEntity.ok(service.createUser(user));
     }
 }

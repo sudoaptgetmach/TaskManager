@@ -1,9 +1,10 @@
 package com.mach.taskmanager.controller;
 
-import com.mach.taskmanager.domain.tasks.*;
-import com.mach.taskmanager.repository.CategoryRepository;
-import com.mach.taskmanager.repository.TaskRepository;
-import com.mach.taskmanager.repository.UserRepository;
+import com.mach.taskmanager.domain.tasks.TaskCreationData;
+import com.mach.taskmanager.domain.tasks.TaskDataDetails;
+import com.mach.taskmanager.domain.tasks.TaskListData;
+import com.mach.taskmanager.domain.tasks.TaskUpdateData;
+import com.mach.taskmanager.service.TaskService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -19,45 +20,32 @@ import org.springframework.web.util.UriComponentsBuilder;
 @SecurityRequirement(name = "bearer-key")
 public class TaskController {
 
-    private final TaskRepository repository;
-    private final UserRepository userrepository;
-    private final CategoryRepository categoryRepository;
+    private final TaskService service;
 
-    public TaskController(TaskRepository repository, UserRepository userrepository, CategoryRepository categoryRepository) {
-        this.repository = repository;
-        this.userrepository = userrepository;
-        this.categoryRepository = categoryRepository;
+    public TaskController(TaskService service) {
+        this.service = service;
     }
 
     @PostMapping("/add")
     @Transactional
     public ResponseEntity<TaskDataDetails> addTask(@RequestBody @Valid TaskCreationData data, UriComponentsBuilder uriBuilder) {
-        var task = new Tasks(data, userrepository);
-        var uri = uriBuilder.path("/tasks/{id}").buildAndExpand(task.getId()).toUri();
-
-        repository.save(task);
-        return ResponseEntity.created(uri).body(new TaskDataDetails(task));
+        return service.addTask(data, uriBuilder);
     }
 
     @GetMapping("/list")
     public ResponseEntity<Page<TaskListData>> taskList(@PageableDefault(sort = {"id"}) Pageable paginable) {
-        var page = repository.findAll(paginable).map(TaskListData::new);
-        return ResponseEntity.ok(page);
+        return ResponseEntity.ok(service.taskList(paginable));
     }
 
     @PutMapping("/update/{id}")
     @Transactional
     public ResponseEntity<TaskListData> atualizar(@RequestBody @Valid TaskUpdateData dados) {
-        var task = repository.getReferenceById(dados.id());
-        task.atualizarInformacoes(dados, categoryRepository);
-
-        return ResponseEntity.ok(new TaskListData(task));
+        return ResponseEntity.ok(service.updateTask(dados));
     }
 
     @DeleteMapping("/delete/{id}")
     @Transactional
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        repository.deleteById(id);
-        return ResponseEntity.noContent().build();
+        return service.deleteTask(id);
     }
 }

@@ -5,6 +5,7 @@ import com.mach.taskmanager.domain.user.UserListData;
 import com.mach.taskmanager.domain.user.roles.Role;
 import com.mach.taskmanager.domain.user.roles.RoleListData;
 import com.mach.taskmanager.domain.user.roles.RoleUpdateData;
+import com.mach.taskmanager.exception.EntityNotFoundException;
 import com.mach.taskmanager.repository.RoleRepository;
 import com.mach.taskmanager.repository.UserRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -43,9 +44,9 @@ public class RoleController {
     @Transactional
     public ResponseEntity<String> setRole(@RequestBody @Valid RoleUpdateData roleUpdateData) {
         User user = userRepository.findById(roleUpdateData.userId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         Role role = repository.findById(roleUpdateData.roleId())
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Role not found"));
 
         user.setRoles(Collections.singleton(role));
         userRepository.save(user);
